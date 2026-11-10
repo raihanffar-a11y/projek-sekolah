@@ -1,0 +1,16 @@
+<?php
+require_once __DIR__ . '/includes/auth.php';
+require_role('student');
+$error='';
+if($_SERVER['REQUEST_METHOD']==='POST'){
+ verify_csrf();$code=strtoupper(trim($_POST['code']??''));
+ $stmt=db()->prepare("SELECT s.id,s.status,q.title FROM sessions s JOIN quizzes q ON q.id=s.quiz_id WHERE s.session_code=?");$stmt->execute([$code]);$session=$stmt->fetch();
+ if(!$session||$session['status']!=='open')$error='Kode sesi tidak ditemukan atau sudah ditutup.';
+ else redirect('take_quiz.php?session_id='.(int)$session['id']);
+}
+$pageTitle='Join quiz';require __DIR__ . '/includes/header.php';
+?>
+<div class="form-card"><div class="eyebrow">Quiz Arena</div><h1>Join a session</h1><p class="muted">Masukkan kode sesi dari guru atau admin.</p>
+<?php if($error):?><div class="alert"><?=e($error)?></div><?php endif;?>
+<form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>"><div class="field"><label>Session code</label><input name="code" maxlength="12" required placeholder="Ex. A1B2C3" style="text-transform:uppercase"></div><button class="button full">Find session</button></form></div>
+<?php require __DIR__ . '/includes/footer.php'; ?>

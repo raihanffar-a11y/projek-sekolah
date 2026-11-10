@@ -9,6 +9,16 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 
 if (session_status() === PHP_SESSION_NONE) {
+    $cookieParams = [
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ];
+    session_set_cookie_params($cookieParams);
+    ini_set('session.use_strict_mode', '1');
     session_start();
 }
 

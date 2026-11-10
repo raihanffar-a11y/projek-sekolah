@@ -4,9 +4,18 @@ require_role('student');
 $error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
  verify_csrf();$code=strtoupper(trim($_POST['code']??''));
- $stmt=db()->prepare("SELECT s.id,s.status,q.title FROM sessions s JOIN quizzes q ON q.id=s.quiz_id WHERE s.session_code=?");$stmt->execute([$code]);$session=$stmt->fetch();
- if(!$session||$session['status']!=='open')$error='Kode sesi tidak ditemukan atau sudah ditutup.';
- else redirect('take_quiz.php?session_id='.(int)$session['id']);
+ if($code===''){$error='Kode sesi wajib diisi.';}
+ else{
+  $stmt=db()->prepare("SELECT s.id,s.status,s.start_at,s.end_at,q.title FROM sessions s JOIN quizzes q ON q.id=s.quiz_id WHERE s.session_code=?");$stmt->execute([$code]);$session=$stmt->fetch();
+  if(!$session)$error='Kode sesi tidak ditemukan.';
+  elseif($session['status']!=='open')$error='Sesi sudah ditutup.';
+  else{
+   $now=new DateTimeImmutable('now');
+   if($session['start_at']&&new DateTimeImmutable($session['start_at'])>$now)$error='Sesi belum dibuka. Silakan coba lagi nanti.';
+   elseif($session['end_at']&&new DateTimeImmutable($session['end_at'])<$now)$error='Sesi sudah ditutup.';
+   else redirect('take_quiz.php?session_id='.(int)$session['id']);
+  }
+ }
 }
 $pageTitle='Join quiz';require __DIR__ . '/includes/header.php';
 ?>

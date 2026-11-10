@@ -19,7 +19,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   }catch(Throwable $e){$pdo->rollBack();throw $e;}
  }
 }
-$q=db()->prepare("SELECT q.*,COUNT(o.id) option_count FROM questions q LEFT JOIN options o ON o.question_id=q.id WHERE q.quiz_id=? GROUP BY q.id ORDER BY q.id");$q->execute([$quizId]);$questions=$q->fetchAll();
+$q=db()->prepare("SELECT q.id,q.quiz_id,q.question_text,q.question_type,q.points,q.sort_order,COALESCE(o_cnt.cnt,0) AS option_count FROM questions q LEFT JOIN (SELECT question_id,COUNT(*) AS cnt FROM options GROUP BY question_id) o_cnt ON o_cnt.question_id=q.id WHERE q.quiz_id=? ORDER BY q.id");$q->execute([$quizId]);$questions=$q->fetchAll();
 $pageTitle='Question Builder';require __DIR__ . '/../includes/header.php';
 ?>
 <div class="eyebrow">Quiz builder · Step 2</div><h1><?=e($quiz['title'])?></h1><p class="muted">Tambahkan pertanyaan pilihan ganda. Kunci jawaban disimpan di server.</p>

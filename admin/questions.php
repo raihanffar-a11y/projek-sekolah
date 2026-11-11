@@ -25,10 +25,10 @@ $pageTitle='Question Builder';require __DIR__ . '/../includes/header.php';
 <div class="eyebrow">Quiz builder · Step 2</div><h1><?=e($quiz['title'])?></h1><p class="muted">Tambahkan pertanyaan pilihan ganda. Kunci jawaban disimpan di server.</p>
 <?php if($error):?><div class="alert"><?=e($error)?></div><?php endif;?>
 <div class="form-card"><h2>Add question</h2><form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>">
-<div class="field"><label>Question</label><textarea name="question" rows="3" required></textarea></div>
-<?php foreach(['A','B','C','D'] as $i=>$letter):?><div class="field"><label>Option <?=$letter?></label><input name="options[]" required></div><?php endforeach;?>
-<div class="field"><label>Correct answer</label><select name="correct"><?php foreach(['A','B','C','D'] as $i=>$letter):?><option value="<?=$i?>"><?=$letter?></option><?php endforeach;?></select></div>
-<div class="field"><label>Points</label><input type="number" name="points" value="1" min="0.5" step="0.5"></div>
+<div class="field-group"><label>Question</label><textarea name="question" rows="3" required></textarea></div>
+<?php foreach(['A','B','C','D'] as $i=>$letter):?><div class="field-group"><label>Option <?=$letter?></label><input name="options[]" required></div><?php endforeach;?>
+<div class="field-group"><label>Correct answer</label><select name="correct"><?php foreach(['A','B','C','D'] as $i=>$letter):?><option value="<?=$i?>"><?=$letter?></option><?php endforeach;?></select></div>
+<div class="field-group"><label>Points</label><input type="number" name="points" value="1" min="0.5" step="0.5"><p class="helper">Points awarded for a correct answer.</p></div>
 <button class="button full">Save question</button></form></div>
 <h2 class="section-title">Questions (<?=count($questions)?>)</h2>
 <?php foreach($questions as $i=>$item):?><div class="card question"><b><?=($i+1)?>. <?=e($item['question_text'])?></b><p class="muted"><?=e((string)$item['points'])?> points</p></div><?php endforeach;?>

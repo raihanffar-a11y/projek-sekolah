@@ -89,9 +89,10 @@ $optionStmt=db()->prepare("SELECT id,option_text FROM options WHERE question_id=
 $pageTitle='Quiz Arena';require __DIR__ . '/includes/header.php';
 ?>
 <div class="eyebrow">Quiz in progress</div><h1><?=e($session['title'])?></h1><p class="muted"><?=count($questions)?> questions · <?= (int)$session['duration_minutes']?> minutes</p>
+<hr class="section-divider">
 <?php if($timeExpired): ?><div class="alert">Waktu pengerjaan telah habis. Jawaban yang tersimpan tidak dapat diubah.</div><?php else: ?><div class="alert">Periksa jawaban sebelum submit. Timer dipaksa oleh server berdasarkan durasi kuis.</div><?php endif; ?>
 <form method="post"<?= $timeExpired ? ' onsubmit="return false;"' : ' onsubmit="return confirm(\'Kumpulkan jawaban sekarang?\')"'; ?>><input type="hidden" name="csrf" value="<?=e(csrf_token())?>">
-<?php foreach($questions as $i=>$q):?><div class="question"><b><?=($i+1)?>. <?=e($q['question_text'])?></b><p class="muted"><?=e((string)$q['points'])?> points</p>
+<?php foreach($questions as $i=>$q):?><div class="question"><span class="question-number"><?=($i+1)?></span><b><?=e($q['question_text'])?></b><p class="muted"><?=e((string)$q['points'])?> points</p>
 <?php $optionStmt->execute([$q['id']]);foreach($optionStmt->fetchAll() as $o):?><label class="option"><input type="radio" name="answers[<?=$q['id']?>]" value="<?=$o['id']?>"<?= (isset($existingAnswers[$q['id']])&&$existingAnswers[$q['id']]===(int)$o['id'])?' checked':'' ?><?= $timeExpired ? ' disabled' : '' ?>><?=e($o['option_text'])?></label><?php endforeach;?>
 </div><?php endforeach;?>
 <button class="button"<?= $timeExpired ? ' disabled' : '' ?>><?= $existing&&!$existing['submitted_at']?'Update jawaban':'Submit answers' ?></button></form>

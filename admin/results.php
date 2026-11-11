@@ -10,6 +10,7 @@ $stmt=db()->prepare($sql);$stmt->execute($params);$rows=$stmt->fetchAll();
 $pageTitle='Results & Analytics';require __DIR__ . '/../includes/header.php';
 ?>
 <div class="eyebrow">Performance analytics</div><h1>Results & Analytics</h1><p class="muted">Semua hasil pengerjaan yang sudah dikumpulkan.</p>
+<hr class="section-divider">
 <div class="table-wrap"><table class="table"><tr><th>Student</th><th>Quiz</th><th>Session</th><th>Score</th><th>Submitted</th><th>Detail</th></tr>
 <?php foreach($rows as $r):?><tr><td><?=e($r['name'])?><br><small class="muted"><?=e($r['email'])?></small></td><td><?=e($r['title'])?></td><td><?=e($r['session_code'])?></td><td><b><?=e((string)$r['score'])?> / <?=e((string)$r['max_score'])?></b></td><td><?=e($r['submitted_at'])?></td><td><a href="<?=BASE_URL?>/result.php?id=<?=$r['id']?>">View</a></td></tr><?php endforeach;?>
 <?php if(!$rows):?><tr><td colspan="6" class="muted">Belum ada hasil pengerjaan.</td></tr><?php endif;?></table></div>

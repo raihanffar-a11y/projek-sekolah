@@ -17,9 +17,9 @@ $pageTitle='Create quiz';require __DIR__ . '/../includes/header.php';
 <div class="form-card"><div class="eyebrow">Quiz builder · Step 1</div><h1>Create new quiz</h1>
 <?php if($error): ?><div class="alert"><?=e($error)?></div><?php endif; ?>
 <form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>">
-<div class="field"><label>Quiz title</label><input name="title" required maxlength="150" placeholder="Example: Simple Past Tense"></div>
-<div class="field"><label>Description</label><textarea name="description" rows="3"></textarea></div>
-<div class="field"><label>Category</label><select name="category_id"><option value="0">Choose category</option><?php foreach($categories as $c): ?><option value="<?=$c['id']?>"><?=e($c['name'])?></option><?php endforeach;?></select></div>
-<div class="field"><label>Duration (minutes)</label><input type="number" name="duration" min="1" max="180" value="15"></div>
+<div class="field-group"><label>Quiz title</label><input name="title" required maxlength="150" placeholder="Example: Simple Past Tense"></div>
+<div class="field-group"><label>Description</label><textarea name="description" rows="3"></textarea></div>
+<div class="field-group"><label>Category</label><select name="category_id"><option value="0">Choose category</option><?php foreach($categories as $c): ?><option value="<?=$c['id']?>"><?=e($c['name'])?></option><?php endforeach;?></select></div>
+<div class="field-group"><label>Duration (minutes)</label><input type="number" name="duration" min="1" max="180" value="15"><p class="helper">How long students have to complete the quiz.</p></div>
 <button class="button full">Continue to questions</button></form></div>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

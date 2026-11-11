@@ -340,6 +340,166 @@ nav{display:flex;align-items:center;gap:28px;color:var(--muted);font-size:14px;f
 .card,.question,.field{
   animation:fadeIn 0.4s ease both;
 }
+
+/* Section divider */
+.section-divider{
+  border:none;
+  border-top:1px solid var(--border);
+  margin:48px 0;
+}
+
+/* Code display for session codes */
+.code-display{
+  display:inline-block;
+  padding:10px 16px;
+  border:1px dashed var(--border);
+  border-radius:var(--radius);
+  background:#FAF7EF;
+  font-family:'Courier New',Courier,monospace;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:2px;
+  color:var(--ink);
+  margin:8px 0;
+}
+
+/* Score badge */
+.score-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--surface);
+  font-size:14px;
+  font-weight:700;
+  color:var(--ink);
+  margin-top:12px;
+}
+.score-badge .value{
+  color:var(--green);
+}
+
+/* Progress bar - real data only */
+.progress-wrap{
+  margin:16px 0;
+}
+.progress-label{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+  margin-bottom:6px;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+}
+.progress-track{
+  height:8px;
+  border-radius:4px;
+  background:#F0EBD9;
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:var(--green);
+  border-radius:4px;
+  transition:width 0.5s ease;
+}
+
+/* Better form field groups */
+.field-group{
+  margin:24px 0;
+}
+.field-group label{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:8px;
+}
+.field-group p.helper{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+/* Zebra stripes for admin tables */
+.table tr:nth-child(even) td{
+  background:#FAF7EF;
+}
+
+/* Empty state */
+.empty-state{
+  text-align:center;
+  padding:48px 24px;
+  color:var(--muted);
+}
+.empty-state p{
+  font-size:15px;
+  margin-top:12px;
+}
+
+/* Focus visible for accessibility */
+*:focus-visible{
+  outline:2px solid var(--green);
+  outline-offset:2px;
+}
+
+/* Question number badge */
+.question-number{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  background:var(--green);
+  color:var(--ink);
+  font-size:12px;
+  font-weight:800;
+  margin-right:10px;
+}
+
+/* Admin stat card - better layout */
+.stat-card{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+/* Result page enhancements */
+.result-header{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:24px;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  background:var(--surface);
+  margin-bottom:24px;
+}
+.result-score{
+  font-size:48px;
+  font-weight:800;
+  color:var(--ink);
+  letter-spacing:-0.02em;
+}
+.result-score .muted{
+  font-size:20px;
+  font-weight:500;
+}
+
+/* Admin action buttons alignment */
+.admin-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:24px;
+}
+
 @media(max-width:650px){
   .topbar{padding:0 5%;height:auto;min-height:60px}
   .topbar nav{gap:16px;font-size:13px}

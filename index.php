@@ -11,6 +11,7 @@ require __DIR__ . '/includes/header.php';
   <p>Belajar, berlatih, dan berkembang bersama. Ikuti English Night, kerjakan quiz, dan pantau progres belajarmu dalam satu tempat.</p>
   <div class="hero-actions"><a class="button" href="<?= BASE_URL ?>/register.php">Create student account</a><a class="button secondary" href="<?= BASE_URL ?>/login.php">Sign in</a></div>
 </section>
+<hr class="section-divider">
 <div class="grid">
   <div class="grid-item"><h3>Quiz Arena</h3><p class="muted">Masukkan kode sesi dan kerjakan kuis dengan alur yang simpel.</p></div>
   <div class="grid-item"><h3>Instant Results</h3><p class="muted">Nilai otomatis tersimpan setelah kamu mengumpulkan jawaban.</p></div>

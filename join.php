@@ -21,5 +21,5 @@ $pageTitle='Join quiz';require __DIR__ . '/includes/header.php';
 ?>
 <div class="form-card"><div class="eyebrow">Quiz Arena</div><h1>Join a session</h1><p class="muted">Masukkan kode sesi dari guru atau admin.</p>
 <?php if($error):?><div class="alert"><?=e($error)?></div><?php endif;?>
-<form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>"><div class="field"><label>Session code</label><input name="code" maxlength="12" required placeholder="Ex. A1B2C3" style="text-transform:uppercase"></div><button class="button full">Find session</button></form></div>
+<form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>"><div class="field"><label>Session code</label><input name="code" maxlength="12" required placeholder="Ex. A1B2C3" class="code-input"></div><button class="button full">Find session</button></form></div>
 <?php require __DIR__ . '/includes/footer.php'; ?>

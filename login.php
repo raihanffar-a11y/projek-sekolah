@@ -25,5 +25,5 @@ require __DIR__ . '/includes/header.php';
 <form method="post"><input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
 <div class="field"><label>Email</label><input type="email" name="email" required></div>
 <div class="field"><label>Password</label><input type="password" name="password" required></div>
-<button class="button full">Login</button></form><p class="muted">Belum punya akun? <a href="<?= BASE_URL ?>/register.php" style="color:#80b4ff">Daftar</a></p></div>
+<button class="button full">Login</button></form><p class="muted">Belum punya akun? <a href="<?= BASE_URL ?>/register.php">Daftar</a></p></div>
 <?php require __DIR__ . '/includes/footer.php'; ?>

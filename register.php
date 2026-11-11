@@ -31,5 +31,5 @@ require __DIR__ . '/includes/header.php';
 <div class="field"><label>Full name</label><input name="name" maxlength="100" required value="<?= e($_POST['name'] ?? '') ?>"></div>
 <div class="field"><label>Email</label><input type="email" name="email" required value="<?= e($_POST['email'] ?? '') ?>"></div>
 <div class="field"><label>Password</label><input type="password" name="password" minlength="8" required></div>
-<button class="button full">Create account</button></form><p class="muted">Sudah punya akun? <a href="<?= BASE_URL ?>/login.php" style="color:#80b4ff">Login</a></p></div>
+<button class="button full">Create account</button></form><p class="muted">Sudah punya akun? <a href="<?= BASE_URL ?>/login.php">Login</a></p></div>
 <?php require __DIR__ . '/includes/footer.php'; ?>

@@ -18,10 +18,10 @@ if ($user['role'] === 'admin'):
   $stmt = db()->prepare("SELECT a.score,a.max_score,a.submitted_at,q.title FROM attempts a JOIN sessions s ON s.id=a.session_id JOIN quizzes q ON q.id=s.quiz_id WHERE a.user_id=? AND a.submitted_at IS NOT NULL ORDER BY a.submitted_at DESC LIMIT 5");
   $stmt->execute([$user['id']]); $recent = $stmt->fetchAll();
 ?>
-<div class="eyebrow">Student workspace</div><h1>Good evening, <?= e($user['name']) ?> 👋</h1><p class="muted">Siap meningkatkan kemampuan bahasa Inggrismu?</p>
+<div class="eyebrow">Student workspace</div><h1>Good evening, <?= e($user['name']) ?></h1><p class="muted">Siap meningkatkan kemampuan bahasa Inggrismu?</p>
 <div class="grid">
-  <div class="card"><div class="icon">🎮</div><h3>Join Quiz Session</h3><p class="muted">Punya kode sesi dari guru? Masukkan untuk mulai.</p><a class="button" href="<?= BASE_URL ?>/join.php">Enter session code</a></div>
-  <div class="card"><div class="icon">📈</div><h3>My Progress</h3><p class="muted">Lihat hasil pengerjaan kuis terakhirmu.</p><div class="stat"><?= count($recent) ?></div><span class="muted">Recent attempts</span></div>
+  <div class="grid-item"><h3>Join Quiz Session</h3><p class="muted">Punya kode sesi dari guru? Masukkan untuk mulai.</p><a class="button" href="<?= BASE_URL ?>/join.php">Enter session code</a></div>
+  <div class="grid-item"><h3>My Progress</h3><p class="muted">Lihat hasil pengerjaan kuis terakhirmu.</p><div class="stat"><?= count($recent) ?></div><span class="muted">Recent attempts</span></div>
 </div>
 <h2 class="section-title">Recent results</h2>
 <?php if(!$recent): ?><div class="card muted">Belum ada hasil kuis. Masukkan kode sesi untuk memulai.</div><?php else: ?>

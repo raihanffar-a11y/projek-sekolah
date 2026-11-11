@@ -220,6 +220,27 @@ nav{display:flex;align-items:center;gap:28px;color:var(--muted);font-size:14px;f
 }
 .field input::placeholder{color:#B8B5A6}
 .field select{background-image:none;-webkit-appearance:none;appearance:none;}
+.field-toggle{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+.toggle-password{
+  position:absolute;
+  right:12px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:6px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.toggle-password:hover{color:var(--ink);}
+.toggle-password svg{width:18px;height:18px;display:block;}
 .accent{color:var(--green);font-weight:700;}
 .code-input{text-transform:uppercase;}
 .alert{

@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'Create account';
 require __DIR__ . '/includes/header.php';
 ?>
-<div class="form-card"><div class="eyebrow">Join EnglishHub</div><h1>Create account</h1><p class="muted">Daftar sebagai siswa untuk mengikuti English Night.</p>
+<div class="form-card"><div class="eyebrow">Join EnglishHub</div><h1>Create account</h1><p class="muted">Daftar sebagai siswa atau admin untuk mengikuti English Night.</p>
 <?php if($error): ?><div class="alert"><?= e($error) ?></div><?php endif; ?>
 <form method="post"><input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
 <div class="field"><label>Full name</label><input name="name" maxlength="100" required value="<?= e($_POST['name'] ?? '') ?>"></div>

@@ -21,6 +21,7 @@ $pageTitle = 'Login';
 require __DIR__ . '/includes/header.php';
 ?>
 <div class="form-card"><div class="eyebrow">Welcome back</div><h1>Sign in</h1><p class="muted">Masuk ke akun EnglishHub kamu.</p>
+<div class="admin-info"><p style="margin:0;font-size:13px;">Admin? Role ditentukan saat pendaftaran. Jika ingin mengelola kuis, daftar sebagai admin atau hubungi administrator untuk mengubah role akun Anda di database.</p></div>
 <?php if($error): ?><div class="alert"><?= e($error) ?></div><?php endif; ?>
 <div class="success"><p style="margin:0;font-size:13px;">Admin? Role ditentukan saat pendaftaran. Jika ingin mengelola kuis, daftar sebagai admin atau hubungi administrator untuk mengubah role akun Anda di database.</p></div>
 <form method="post"><input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">

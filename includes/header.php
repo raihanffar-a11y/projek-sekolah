@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/auth.php';
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 $user = current_user();
 $pageTitle = $pageTitle ?? APP_NAME;
 ?>
@@ -11,7 +13,7 @@ $pageTitle = $pageTitle ?? APP_NAME;
   <title><?= e($pageTitle) ?> · EnglishHub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style.css?v=<?= (int)@filemtime(__DIR__ . '/../assets/style.css') ?>">
 </head>
 <body>
 <header class="topbar">
@@ -19,8 +21,10 @@ $pageTitle = $pageTitle ?? APP_NAME;
   <nav>
     <?php if ($user): ?>
       <a href="<?= BASE_URL ?>/dashboard.php">Dashboard</a>
-      <?php if ($user['role'] === 'admin'): ?><a href="<?= BASE_URL ?>/admin/quizzes.php">Quizzes</a><a href="<?= BASE_URL ?>/admin/quiz_rooms.php">Quiz Rooms</a><a href="<?= BASE_URL ?>/admin/vocabularies.php">Vocab</a><?php endif; ?>
-      <?php if ($user['role'] === 'student'): ?><a href="<?= BASE_URL ?>/pronunciation.php">Pronunciation</a><a href="<?= BASE_URL ?>/progress.php">Progress</a><?php endif; ?>
+      <a href="<?= BASE_URL ?>/admin/quizzes.php">Quizzes</a>
+      <a href="<?= BASE_URL ?>/admin/quiz_rooms.php">Quiz Rooms</a>
+      <?php if ($user['role'] === 'admin'): ?><a href="<?= BASE_URL ?>/admin/users.php">Users</a><a href="<?= BASE_URL ?>/admin/vocabularies.php">Vocab</a><?php endif; ?>
+      <?php if ($user['role'] !== 'admin'): ?><a href="<?= BASE_URL ?>/pronunciation.php">Pronunciation</a><a href="<?= BASE_URL ?>/progress.php">Progress</a><?php endif; ?>
       <span class="nav-user"><?= e($user['name']) ?></span>
       <a class="nav-button" href="<?= BASE_URL ?>/logout.php">Logout</a>
     <?php else: ?>

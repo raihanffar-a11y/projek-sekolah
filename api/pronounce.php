@@ -57,6 +57,7 @@ $pronunciationConfig = [
     'ReferenceText' => $referenceText,
     'GradingSystem' => 'HundredMark',
     'Granularity' => 'Phoneme',
+    'Dimension' => 'Comprehensive',
     'EnableMiscue' => true,
 ];
 $pronunciationConfigJson = json_encode($pronunciationConfig);
@@ -77,8 +78,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Ocp-Apim-Subscription-Key: ' . AZURE_SPEECH_KEY,
     'Content-Type: audio/wav; codecs=audio/pcm; samplerate=16000',
     'Accept: application/json',
-    'Pronunciation-Assessment-Configuration: ' . $pronunciationConfigBase64,
-    'Pronunciation-Assessment-Context: ' . base64_encode(json_encode(['ReferenceText' => $referenceText])),
+    'Pronunciation-Assessment: ' . $pronunciationConfigBase64,
 ]);
 
 $response = curl_exec($ch);
@@ -101,7 +101,6 @@ if (!$data || !isset($data['NBest'])) {
     http_response_code(502);
     echo json_encode([
         'error' => 'Respons layanan tidak valid.',
-        'raw' => $response,
     ]);
     exit;
 }

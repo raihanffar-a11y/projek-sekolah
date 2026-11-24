@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_login();
+$reactBuild = __DIR__ . '/frontend/dist/index.html';
+if (is_file($reactBuild)) redirect('index.php');
 $user = current_user();
 $pageTitle = 'Dashboard';
 require __DIR__ . '/includes/header.php';
@@ -17,7 +19,7 @@ if ($user['role'] === 'admin'):
 </div>
 <h2 class="section-title">Quick actions</h2><div class="admin-actions"><a class="button" href="<?= BASE_URL ?>/admin/quizzes.php">Manage quizzes</a><a class="button secondary" href="<?= BASE_URL ?>/admin/create_quiz.php">Create quiz</a><a class="button secondary" href="<?= BASE_URL ?>/admin/create_quiz_room.php">Create quiz room</a><a class="button secondary" href="<?= BASE_URL ?>/admin/vocabularies.php">Manage vocab</a><a class="button secondary" href="<?= BASE_URL ?>/admin/results.php">View results</a></div>
 <?php else:
-  $stmt = db()->prepare("SELECT a.score,a.max_score,a.submitted_at,q.title FROM attempts a JOIN sessions s ON s.id=a.session_id JOIN quizzes q ON q.id=s.quiz_id WHERE a.user_id=? AND a.submitted_at IS NOT NULL ORDER BY a.submitted_at DESC LIMIT 5");
+  $stmt = db()->prepare("SELECT a.score,a.max_score,a.submitted_at,COALESCE(qr.title,q.title) AS title FROM attempts a LEFT JOIN quiz_rooms qr ON qr.id=a.quiz_room_id LEFT JOIN sessions s ON s.id=a.session_id LEFT JOIN quizzes q ON q.id=s.quiz_id WHERE a.user_id=? AND a.submitted_at IS NOT NULL ORDER BY a.submitted_at DESC LIMIT 5");
   $stmt->execute([$user['id']]); $recent = $stmt->fetchAll();
 ?>
 <div class="eyebrow">Student workspace</div><h1>Good evening, <?= e($user['name']) ?></h1><p class="muted">Siap meningkatkan kemampuan bahasa Inggrismu?</p>

@@ -22,7 +22,7 @@ function award_achievements(int $userId, int $score, int $maxScore, int $totalQu
 
     // Ambil semua achievement aktif yang belum dibuka user ini
     $stmt = $pdo->prepare("
-        SELECT a.id, a.code, a.name, a.condition_type, a.condition_value, a.points_reward
+        SELECT a.id, a.code, a.name, a.description, a.icon, a.condition_type, a.condition_value, a.points_reward
         FROM achievements a
         LEFT JOIN user_achievements ua ON ua.achievement_id = a.id AND ua.user_id = ?
         WHERE a.is_active = 1 AND ua.id IS NULL
@@ -55,10 +55,11 @@ function award_achievements(int $userId, int $score, int $maxScore, int $totalQu
         if ($unlock) {
             // Simpan ke user_achievements
             $ins = $pdo->prepare("
-                INSERT INTO user_achievements (user_id, achievement_id)
+                INSERT IGNORE INTO user_achievements (user_id, achievement_id)
                 VALUES (?, ?)
             ");
             $ins->execute([$userId, (int)$ach['id']]);
+            if ($ins->rowCount() === 0) continue; // sudah dibuka oleh request lain
 
             // Berikan bonus XP jika ada
             if ((int)$ach['points_reward'] > 0) {

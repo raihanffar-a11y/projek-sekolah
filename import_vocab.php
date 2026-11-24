@@ -27,6 +27,10 @@ echo "<h1>Import Bank Kosakata EnglishHub</h1>";
 echo "<p>Total entri dalam file: " . count($vocab) . "</p>";
 
 $pdo = db();
+$categoryId = $pdo->query("SELECT id FROM categories WHERE name = 'Vocabulary' LIMIT 1")->fetchColumn();
+if (!$categoryId) {
+    die('Kategori Vocabulary tidak ditemukan. Pastikan migrasi platform kuis sudah diterapkan.');
+}
 $success = 0;
 $errors = [];
 
@@ -42,15 +46,16 @@ foreach ($vocab as $index => $item) {
 
     try {
         $stmt = $pdo->prepare("
-            INSERT INTO vocabularies (vocab_number, word_en, meaning_id, is_active)
-            VALUES (?, ?, ?, 1)
+            INSERT INTO vocabularies (vocab_number, word_en, meaning_id, category_id, is_active)
+            VALUES (?, ?, ?, ?, 1)
             ON DUPLICATE KEY UPDATE
                 word_en = VALUES(word_en),
                 meaning_id = VALUES(meaning_id),
+                category_id = VALUES(category_id),
                 is_active = VALUES(is_active),
                 updated_at = CURRENT_TIMESTAMP
         ");
-        $stmt->execute([$vocabNumber, $wordEn, $meaningId]);
+        $stmt->execute([$vocabNumber, $wordEn, $meaningId, (int)$categoryId]);
         $success++;
     } catch (PDOException $e) {
         $errors[] = "Baris {$vocabNumber} ({$wordEn}): " . $e->getMessage();

@@ -5,7 +5,7 @@ $id = (int)($_GET['id'] ?? 0);
 $pdo = db();
 
 $stmt = $pdo->prepare("
-    SELECT a.*, qr.title, qr.start_number, qr.end_number, u.name
+    SELECT a.*, qr.title, qr.start_number, qr.end_number, qr.created_by room_owner, u.name
     FROM attempts a
     JOIN quiz_rooms qr ON qr.id = a.quiz_room_id
     JOIN users u ON u.id = a.user_id
@@ -15,21 +15,37 @@ $stmt->execute([$id]);
 $result = $stmt->fetch();
 if (!$result) exit('Hasil tidak ditemukan.');
 
-if (current_user()['role'] !== 'admin' && (int)$result['user_id'] !== (int)current_user()['id']) {
+if (current_user()['role'] !== 'admin' && (int)$result['user_id'] !== (int)current_user()['id'] && (int)$result['room_owner'] !== (int)current_user()['id']) {
     http_response_code(403);
     exit('Akses ditolak.');
 }
 
 $answers = $pdo->prepare("
     SELECT aq.position, aq.vocab_number, aq.question_text, aq.correct_answer, aq.option_a, aq.option_b, aq.option_c, aq.option_d, aq.correct_option,
-           an.selected_option_id, an.is_correct, an.awarded_points
+           aq.selected_option, aq.is_correct
     FROM attempt_quiz_questions aq
-    LEFT JOIN answers an ON an.question_id = aq.id AND an.attempt_id = aq.attempt_id
     WHERE aq.attempt_id=?
     ORDER BY aq.position
 ");
 $answers->execute([$id]);
 $details = $answers->fetchAll();
+$boardStmt = $pdo->prepare("
+    SELECT u.name,a.score,a.correct_count,a.accuracy_percent,a.completion_seconds
+    FROM attempts a JOIN users u ON u.id=a.user_id
+    WHERE a.quiz_room_id=? AND a.submitted_at IS NOT NULL
+    ORDER BY a.score DESC,u.name
+");
+$boardStmt->execute([(int)$result['quiz_room_id']]);
+$leaderboard = $boardStmt->fetchAll();
+$rank = 0;
+$previousScore = null;
+foreach ($leaderboard as $index => &$entry) {
+    $score = (int)$entry['score'];
+    if ($previousScore === null || $score !== $previousScore) $rank = $index + 1;
+    $entry['rank'] = $rank;
+    $previousScore = $score;
+}
+unset($entry);
 
 $pageTitle = 'Quiz Result';
 require __DIR__ . '/includes/header.php';
@@ -63,12 +79,32 @@ if ($newBadges) {
         <h1><?= e($result['title']) ?></h1>
         <p class="muted"><?= e($result['name']) ?> · Range: <?= (int)$result['start_number'] ?>–<?= (int)$result['end_number'] ?></p>
     </div>
+    <div class="grid result-summary">
+        <div class="card"><span>Total soal</span><strong><?= (int)$result['correct_count'] + (int)$result['incorrect_count'] + (int)$result['unanswered_count'] ?></strong></div>
+        <div class="card"><span>Benar</span><strong><?= (int)$result['correct_count'] ?></strong></div>
+        <div class="card"><span>Salah</span><strong><?= (int)$result['incorrect_count'] ?></strong></div>
+        <div class="card"><span>Tidak dijawab</span><strong><?= (int)$result['unanswered_count'] ?></strong></div>
+        <div class="card"><span>Akurasi</span><strong><?= e((string)$result['accuracy_percent']) ?>%</strong></div>
+        <div class="card"><span>Waktu pengerjaan</span><strong><?= e((string)($result['completion_seconds'] ?? 0)) ?> dtk</strong></div>
+    </div>
     <div class="result-score"><?= e((string)$result['score']) ?> <span class="muted">/ <?= e((string)$result['max_score']) ?></span></div>
     <p class="muted">Submitted: <?= e($result['submitted_at'] ?? '-') ?></p>
 </div>
+<h2 class="section-title">Leaderboard</h2>
+<div class="table-wrap">
+    <table class="table">
+        <thead><tr><th>Peringkat</th><th>Peserta</th><th>Skor</th><th>Benar</th><th>Akurasi</th></tr></thead>
+        <tbody>
+        <?php foreach ($leaderboard as $entry): ?>
+            <tr><td><?= (int)$entry['rank'] ?></td><td><?= e($entry['name']) ?></td><td><?= (int)$entry['score'] ?></td><td><?= (int)$entry['correct_count'] ?></td><td><?= e((string)$entry['accuracy_percent']) ?>%</td></tr>
+        <?php endforeach; ?>
+        <?php if (!$leaderboard): ?><tr><td colspan="5" class="muted">Belum ada hasil.</td></tr><?php endif; ?>
+        </tbody>
+    </table>
+</div>
 <div class="progress-wrap">
     <div class="progress-label"><span>Score</span><span><?= e((string)$result['score']) ?> / <?= e((string)$result['max_score']) ?></span></div>
-    <div class="progress-track"><div class="progress-fill" style="width:<?= (int)(($result['score'] / $result['max_score']) * 100) ?>%"></div></div>
+    <div class="progress-track"><div class="progress-fill" style="width:<?= ($result['max_score'] > 0 ? (int)round(($result['score'] / $result['max_score']) * 100) : 0) ?>%"></div></div>
 </div>
 <h2 class="section-title">Answer Review</h2>
 <div class="table-wrap">
@@ -89,12 +125,8 @@ if ($newBadges) {
             $optionMap = ['A' => 'option_a', 'B' => 'option_b', 'C' => 'option_c', 'D' => 'option_d'];
             $col = $optionMap[$a['correct_option']] ?? '';
             $correctText = $a[$col] ?? $a['correct_answer'];
-            $selectedText = '';
-            if ($a['selected_option_id'] === 1) $selectedText = $a['option_a'];
-            elseif ($a['selected_option_id'] === 2) $selectedText = $a['option_b'];
-            elseif ($a['selected_option_id'] === 3) $selectedText = $a['option_c'];
-            elseif ($a['selected_option_id'] === 4) $selectedText = $a['option_d'];
-            else $selectedText = 'No answer';
+            $selCol = $optionMap[$a['selected_option'] ?? ''] ?? '';
+            $selectedText = $selCol !== '' ? $a[$selCol] : 'No answer';
             ?>
             <tr>
                 <td><b><?= ($i + 1) ?></b></td>

@@ -1,16 +1,49 @@
-document.querySelectorAll('[data-confirm]').forEach(el=>{
-  el.addEventListener('click',e=>{
-    if(!confirm(el.dataset.confirm || 'Lanjutkan tindakan ini?')) e.preventDefault();
+// Konfirmasi tindakan (atribut data-confirm)
+document.querySelectorAll('[data-confirm]').forEach(el => {
+  el.addEventListener('click', ev => {
+    if (!confirm(el.dataset.confirm || 'Lanjutkan tindakan ini?')) ev.preventDefault();
   });
 });
 
-document.querySelectorAll('.toggle-password').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const input=btn.closest('.field-toggle').querySelector('input');
-    const isPassword=input.type==='password';
-    input.type=isPassword?'text':'password';
-    btn.innerHTML=isPassword
-      ?'<svg viewBox="0 0 24 24"><path d="M1 12s3-3 5-3 5 3 5 3-5 3-5-3-5-3-5 3-5-3m17.72-3.65c.46-.47.86-1.04 1.16-1.69.2-.53.28-1.11.25-1.69l-.02-.23c-.02-.54-.14-1.08-.38-1.59-.33-.7-.88-1.3-1.52-1.62-1.03-.52-2.33-.77-3.64-.55l-1.3-.23c-.08-.02-.17-.04-.25-.04-.13 0-.26.02-.38.07l-1.86.88c-1.13.53-2.22 1.33-2.99 2.38-.31.42-.57.9-.77 1.42-.21.52-.35 1.08-.42 1.64-.08.6-.08 1.23-.06 1.85.02.58.15 1.13.38 1.64.33.73.88 1.35 1.53 1.67 1.02.52 2.31.77 3.62.55l1.3.23c.08.02.17.04.25.04.13 0 .26-.02.38-.07l1.86-.88c1.13-.53 2.22-1.33 2.99-2.38.31-.42.57-.9.77-1.42.21-.52.35-1.08.42-1.64.08-.6.08-1.23.06-1.85-.02-.57-.14-1.12-.37-1.63zM12 5.5c-3.6 0-5.1 3.2-5.1 7 0 .52.1 1.04.26 1.52l1.93.75c.51.2 1.04.4 1.58.61.21.08.42.14.62.14s.41-.06.62-.14c.54-.21 1.07-.41 1.58-.61l1.93-.75c.16-.48.26-1 .26-1.52 0-3.8-1.5-7-5.1-7z"/></svg>'
-      :'<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
+// Tampilkan / sembunyikan password
+const EYE_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+document.querySelectorAll('.toggle-password').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const wrap = btn.closest('.input-wrap') || btn.closest('.field-toggle');
+    const input = wrap && wrap.querySelector('input');
+    if (!input) return;
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.innerHTML = show ? EYE_OFF : EYE_ON;
+    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+    btn.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+  });
+});
+
+// Konfirmasi password harus sama (halaman daftar)
+const pw = document.querySelector('input[name="password"]');
+const pw2 = document.querySelector('input[name="password2"]');
+if (pw && pw2) {
+  const check = () => pw2.setCustomValidity(pw2.value && pw.value !== pw2.value ? 'Konfirmasi password tidak sama.' : '');
+  pw.addEventListener('input', check);
+  pw2.addEventListener('input', check);
+}
+
+// Cegah klik ganda pada form login/daftar
+document.querySelectorAll('form[data-auth]').forEach(form => {
+  const btn = form.querySelector('button[type="submit"]');
+  if (!btn) return;
+  btn.dataset.label = btn.textContent;
+  form.addEventListener('submit', () => {
+    if (!form.checkValidity()) return;
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
+  });
+  // tombol dipulihkan bila halaman ditampilkan lagi lewat tombol Back
+  window.addEventListener('pageshow', () => {
+    btn.disabled = false;
+    btn.textContent = btn.dataset.label;
   });
 });

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
-require_role('admin');
+require_login();
 
 $pdo = db();
 $message = '';
@@ -8,7 +8,8 @@ $roomId = (int)($_GET['room_id'] ?? 0);
 $export = ($_GET['export'] ?? '') === 'csv';
 
 // Ambil daftar quiz room untuk filter
-$rooms = $pdo->query("SELECT id, title, session_code FROM quiz_rooms ORDER BY created_at DESC")->fetchAll();
+if((current_user()['role']??'')==='admin'){$rooms = $pdo->query("SELECT id, title, session_code FROM quiz_rooms ORDER BY created_at DESC")->fetchAll();}
+else{$roomStmt=$pdo->prepare("SELECT id,title,session_code FROM quiz_rooms WHERE created_by=? ORDER BY created_at DESC");$roomStmt->execute([(int)current_user()['id']]);$rooms=$roomStmt->fetchAll();}
 
 // Build query hasil quiz room
 $sql = "
@@ -24,6 +25,10 @@ $params = [];
 if ($roomId > 0) {
     $sql .= " AND qr.id = ?";
     $params[] = $roomId;
+}
+if ((current_user()['role']??'') !== 'admin') {
+    $sql .= " AND qr.created_by = ?";
+    $params[] = (int)current_user()['id'];
 }
 
 $sql .= " ORDER BY a.submitted_at DESC";

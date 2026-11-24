@@ -16,7 +16,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 <div class="eyebrow">Pronunciation Training</div>
 <h1>Latihan Pengucapan</h1>
-<p class="muted">Latih peloalan bahasa Inggris dengan fitur listen dan pronunciation checker.</p>
+<p class="muted">Latih pelafalan bahasa Inggris dengan fitur listen dan pronunciation checker.</p>
 
 <div class="grid">
   <div class="grid-item" style="min-width:300px;">
@@ -51,7 +51,7 @@ require __DIR__ . '/includes/header.php';
         <span class="word-text">—</span>
       </div>
 
-      <button type="button" id="micBtn" class="button full" aria-label="Mulai pengucapan" disabled>
+      <button type="button" id="micBtn" class="button full" aria-label="Mulai pengucapan">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
       </button>
 
@@ -95,7 +95,8 @@ const pronounceInfo = document.getElementById('pronounceInfo');
 const wordDisplay = document.getElementById('wordToPronounce');
 const wordText = wordDisplay.querySelector('.word-text');
 
-const PRONOUNCE_ENABLED = ' . ($pronounceEnabled ? 'true' : 'false') . ';
+// Jalur Azure dimatikan di sisi JS sampai startMediaRecorder(), sendToAzurePronunciation() dan api/pronounce.php tersedia.
+const PRONOUNCE_ENABLED = false;
 const PRONOUNCE_API = '<?= BASE_URL ?>/api/pronounce.php';
 
 let isRecording = false;
@@ -105,9 +106,7 @@ let audioChunks = [];
 let currentTargetWord = '';
 
 // Pilih kata target acak dari daftar kosakata
-const availableWords = [
-  <?php foreach ($vocabs as $v): ?>'<?= e($v['word_en']) ?>',<?php endforeach; ?>
-];
+const availableWords = <?= json_encode(array_column($vocabs, 'word_en'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
 function pickRandomWord() {
   if (availableWords.length === 0) return 'hello';
@@ -140,14 +139,14 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 
   recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    pronounceResult.innerHTML = '<strong>Hasil deteksi suara:</strong> ' + e(transcript);
+    const heard = transcript.toLowerCase().replace(/[^a-z' ]/g, '').trim();
+    const target = currentTargetWord.toLowerCase().trim();
+    const ok = heard === target;
+    pronounceResult.innerHTML = '<strong>Terdengar:</strong> ' + e(transcript) + '<br>' +
+      (ok ? '✅ Pengucapan terdeteksi benar!' : '❌ Belum cocok dengan "' + e(currentTargetWord) + '". Coba lagi.');
     pronounceResult.style.display = 'block';
-
-    if (PRONOUNCE_ENABLED) {
-      sendToAzurePronunciation(transcript);
-    } else {
-      pronounceInfo.textContent = 'Catatan: Ini hanya speech-to-text (STT), bukan pronunciation assessment asli. Skor pronunciation akurat memerlukan API Azure AI Speech.';
-    }
+    pronounceInfo.textContent = 'Catatan: ini speech-to-text browser (bukan penilaian pronunciation). Skor akurat butuh Azure AI Speech.';
+    if (ok) setTimeout(() => setTargetWord(pickRandomWord()), 1500);
   };
 
   recognition.onend = () => {
@@ -176,7 +175,6 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     } else {
       pronounceResult.style.display = 'none';
       pronounceInfo.textContent = '';
-      setTargetWord(pickRandomWord());
 
       if (PRONOUNCE_ENABLED) {
         startMediaRecorder();
@@ -187,13 +185,12 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   });
 
   setTargetWord(pickRandomWord());
-
-  if (!PRONOUNCE_ENABLED && !('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    micBtn.disabled = true;
-    micBtn.textContent = 'Pronunciation checker tidak tersedia';
-    pronounceStatus.textContent = 'Browser Anda tidak mendukung SpeechRecognition dan Azure API tidak dikonfigurasi.';
-    pronounceInfo.textContent = 'Fitur pronunciation checker tidak tersedia.';
-  }
+} else {
+  setTargetWord(pickRandomWord());
+  micBtn.disabled = true;
+  micBtn.textContent = 'Pronunciation checker tidak tersedia';
+  pronounceStatus.textContent = 'Browser Anda tidak mendukung SpeechRecognition (coba Chrome atau Edge).';
+  pronounceInfo.textContent = 'Fitur pronunciation checker tidak tersedia.';
 }
 
 function e(s) {

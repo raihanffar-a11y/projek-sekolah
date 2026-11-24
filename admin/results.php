@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
-require_role('admin');
+require_login();
 
 $pdo = db();
 $sessionId=(int)($_GET['session_id']??0);
@@ -9,6 +9,7 @@ $export = ($_GET['export'] ?? '') === 'csv';
 $sql="SELECT a.id,a.score,a.max_score,a.submitted_at,u.name,u.email,q.title,s.session_code FROM attempts a JOIN users u ON u.id=a.user_id JOIN sessions s ON s.id=a.session_id JOIN quizzes q ON q.id=s.quiz_id WHERE a.submitted_at IS NOT NULL";
 $params=[];
 
+if((current_user()['role']??'')!=='admin'){$sql.=" AND q.created_by=?";$params[]=(int)current_user()['id'];}
 if($sessionId){$sql.=" AND s.id=?";$params[]=$sessionId;}
 $sql.=" ORDER BY a.submitted_at DESC";
 $stmt=db()->prepare($sql);$stmt->execute($params);$rows=$stmt->fetchAll();
@@ -48,7 +49,8 @@ $pageTitle='Results & Analytics';require __DIR__ . '/../includes/header.php';
         <select name="session_id" style="font-size:13px; padding:4px 8px;" onchange="this.form.submit()">
             <option value="0">Semua session</option>
             <?php
-            $sessions = $pdo->query("SELECT id, session_code FROM sessions ORDER BY created_at DESC")->fetchAll();
+            if((current_user()['role']??'')==='admin'){$sessions = $pdo->query("SELECT id, session_code FROM sessions ORDER BY created_at DESC")->fetchAll();}
+            else{$sessionStmt=$pdo->prepare("SELECT s.id,s.session_code FROM sessions s JOIN quizzes q ON q.id=s.quiz_id WHERE q.created_by=? ORDER BY s.created_at DESC");$sessionStmt->execute([(int)current_user()['id']]);$sessions=$sessionStmt->fetchAll();}
             foreach ($sessions as $s): ?>
                 <option value="<?= (int)$s['id'] ?>" <?= $sessionId === (int)$s['id'] ? 'selected' : '' ?>><?= e($s['session_code']) ?></option>
             <?php endforeach; ?>

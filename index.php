@@ -1,4 +1,12 @@
 <?php
+$reactBuild = __DIR__ . '/frontend/dist/index.html';
+if (is_file($reactBuild)) {
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    readfile($reactBuild);
+    exit;
+}
+
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/includes/auth.php';
 if (current_user()) redirect('dashboard.php');
@@ -9,11 +17,16 @@ require __DIR__ . '/includes/header.php';
   <div class="hero-inner">
     <div class="hero-content">
       <div class="eyebrow">English Learning Platform</div>
-      <h1>Learn English. Practice Together. Grow Every Day.</h1>
+      <h1>Learn English.<br>Practice Together.<br><span class="hero-highlight">Grow Every Day.</span></h1>
       <p class="hero-sub">Gabunglah dengan komunitas belajar, kerjakan kuis berbasis rentang kosakata, latihan pengucapan, dan pantau progres belajarmu dalam satu tempat yang terintegrasi.</p>
       <div class="hero-actions">
         <a class="button" href="<?= BASE_URL ?>/register.php">Create account</a>
         <a class="button secondary" href="<?= BASE_URL ?>/login.php">Sign in</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><strong>500</strong><span>Kosakata</span></div>
+        <div class="hero-stat"><strong>4</strong><span>Format soal</span></div>
+        <div class="hero-stat"><strong>XP</strong><span>Leaderboard</span></div>
       </div>
     </div>
     <div class="hero-visual">
@@ -45,8 +58,6 @@ require __DIR__ . '/includes/header.php';
     </div>
   </div>
 </section>
-
-<hr class="section-divider">
 
 <hr class="section-divider">
 
@@ -97,7 +108,7 @@ require __DIR__ . '/includes/header.php';
       <div class="step-card">
         <div class="step-number">01</div>
         <h3>Create your account</h3>
-        <p>Daftar akun EnglishHub sebagai siswa atau admin.</p>
+        <p>Daftar akun EnglishHub sebagai siswa.</p>
       </div>
       <div class="step-card">
         <div class="step-number">02</div>
@@ -123,7 +134,7 @@ require __DIR__ . '/includes/header.php';
 <section class="final-cta">
   <div class="section-inner">
     <h2 class="section-title">Ready to improve your English?</h2>
-    <p class="section-sub">Bergabunglah dengan ribuan siswa yang sudah meningkatkan kemampuan bahasa Inggris dengan EnglishHub.</p>
+    <p class="section-sub">Bergabunglah dengan EnglishHub dan mulai berlatih kosakata bahasa Inggris hari ini.</p>
     <div class="cta-actions">
       <a class="button" href="<?= BASE_URL ?>/register.php">Create account</a>
       <a class="button secondary" href="<?= BASE_URL ?>/login.php">Sign in</a>

@@ -10,9 +10,9 @@ $userId = (int)current_user()['id'];
 $statsStmt = $pdo->prepare("
     SELECT 
         COUNT(*) AS total_quiz,
-        COALESCE(AVG(score), 0) AS avg_score,
-        COALESCE(MAX(score), 0) AS max_score,
-        COALESCE(MIN(score), 0) AS min_score
+        COALESCE(AVG(score / NULLIF(max_score, 0) * 100), 0) AS avg_score,
+        COALESCE(MAX(score), 0) AS best_score,
+        COALESCE(MIN(score), 0) AS worst_score
     FROM attempts
     WHERE user_id=? AND submitted_at IS NOT NULL
 ");
@@ -32,9 +32,11 @@ if ($xpForNextLevel <= 0) $xpForNextLevel = 100;
 
 // Riwayat quiz
 $historyStmt = $pdo->prepare("
-    SELECT a.score, a.max_score, a.submitted_at, qr.title, qr.start_number, qr.end_number
+    SELECT a.score, a.max_score, a.submitted_at, COALESCE(qr.title, q.title) AS title, qr.start_number, qr.end_number
     FROM attempts a
-    JOIN quiz_rooms qr ON qr.id = a.quiz_room_id
+    LEFT JOIN quiz_rooms qr ON qr.id = a.quiz_room_id
+    LEFT JOIN sessions s ON s.id = a.session_id
+    LEFT JOIN quizzes q ON q.id = s.quiz_id
     WHERE a.user_id=? AND a.submitted_at IS NOT NULL
     ORDER BY a.submitted_at DESC
     LIMIT 10
@@ -44,13 +46,12 @@ $history = $historyStmt->fetchAll();
 
 // Leaderboard: top 10 siswa berdasarkan total XP
 $leaderboardStmt = $pdo->query("
-    SELECT u.name, u.id, COALESCE(SUM(xh.points), 0) AS total_xp, COUNT(a.id) AS total_quiz
+    SELECT u.name, u.id,
+           COALESCE((SELECT SUM(points) FROM xp_history WHERE user_id = u.id), 0) AS total_xp,
+           (SELECT COUNT(*) FROM attempts WHERE user_id = u.id AND submitted_at IS NOT NULL) AS total_quiz
     FROM users u
-    LEFT JOIN xp_history xh ON xh.user_id = u.id
-    LEFT JOIN attempts a ON a.user_id = u.id AND a.submitted_at IS NOT NULL
     WHERE u.role = 'student'
-    GROUP BY u.id
-    ORDER BY total_xp DESC
+    ORDER BY total_xp DESC, u.name ASC
     LIMIT 10
 ");
 $leaderboard = $leaderboardStmt->fetchAll();
@@ -75,7 +76,7 @@ require __DIR__ . '/includes/header.php';
   <div class="grid-item">
     <div class="card stat-card">
       <div class="muted">Rata-rata Skor</div>
-      <div class="stat"><?= number_format((float)$stats['avg_score'], 1) ?></div>
+      <div class="stat"><?= number_format((float)$stats['avg_score'], 1) ?>%</div>
     </div>
   </div>
   <div class="grid-item">
@@ -138,7 +139,7 @@ require __DIR__ . '/includes/header.php';
   <table class="table">
     <thead>
       <tr>
-        <th>Quiz Room</th>
+        <th>Kuis</th>
         <th>Range</th>
         <th style="width:120px;">Skor</th>
         <th style="width:160px;">Tanggal</th>
@@ -151,7 +152,7 @@ require __DIR__ . '/includes/header.php';
       <?php foreach ($history as $h): ?>
         <tr>
           <td><?= e($h['title']) ?></td>
-          <td><?= (int)$h['start_number'] ?>–<?= (int)$h['end_number'] ?></td>
+          <td><?= $h['start_number'] !== null ? (int)$h['start_number'] . '–' . (int)$h['end_number'] : '-' ?></td>
           <td><b><?= e((string)$h['score']) ?>/<?= e((string)$h['max_score']) ?></b></td>
           <td><?= e($h['submitted_at']) ?></td>
         </tr>

@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
-require_role('student');
+require_login();
 $error='';
+$prefillCode=strtoupper(trim((string)($_GET['code']??'')));
 if($_SERVER['REQUEST_METHOD']==='POST'){
  verify_csrf();$code=strtoupper(trim($_POST['code']??''));
  if($code===''){$error='Kode sesi wajib diisi.';}
@@ -28,5 +29,5 @@ $pageTitle='Join Quiz Room';require __DIR__ . '/includes/header.php';
 ?>
 <div class="form-card"><div class="eyebrow">Quiz Arena</div><h1>Join a quiz room</h1><p class="muted">Masukkan kode sesi dari guru atau admin.</p>
 <?php if($error):?><div class="alert"><?=e($error)?></div><?php endif;?>
-<form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>"><div class="field"><label>Session code</label><input name="code" maxlength="12" required placeholder="Ex. A1B2C3" class="code-input"></div><button class="button full">Find session</button></form></div>
+<form method="post"><input type="hidden" name="csrf" value="<?=e(csrf_token())?>"><div class="field"><label>Session code</label><input name="code" maxlength="12" required placeholder="Ex. A1B2C3" class="code-input" value="<?=e($prefillCode)?>"></div><button class="button full">Find session</button></form></div>
 <?php require __DIR__ . '/includes/footer.php'; ?>
